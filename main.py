@@ -1,13 +1,20 @@
 import pickle
 import cv2
 
+ARQUIVO_POSICOES = "TESTE1"
+
 largura, altura = 90, 55
 
+# Carrega posições salvas
 try:
-    with open("TESTE2", "rb") as c:
+    with open(ARQUIVO_POSICOES, "rb") as c:
         posList = pickle.load(c)
-except:
+
+    print(f"{len(posList)} vagas carregadas.")
+
+except (FileNotFoundError, EOFError, pickle.PickleError):
     posList = []
+    print("Nenhuma posição salva. Criando uma nova lista.")
 
 
 drawing = False
@@ -17,32 +24,43 @@ current_x = 0
 current_y = 0
 
 
+def salvar_posicoes():
+    with open(ARQUIVO_POSICOES, "wb") as c:
+        pickle.dump(posList, c)
+
+
 def mouseClick(event, x, y, flags, params):
+
     global drawing
     global start_x, start_y
     global current_x, current_y
 
     # Começou a arrastar
     if event == cv2.EVENT_LBUTTONDOWN:
+
         drawing = True
+
         start_x = x
         start_y = y
+
         current_x = x
         current_y = y
 
     # Enquanto arrasta
     elif event == cv2.EVENT_MOUSEMOVE and drawing:
+
         current_x = x
         current_y = y
 
     # Soltou o botão
     elif event == cv2.EVENT_LBUTTONUP:
+
         drawing = False
 
         current_x = x
         current_y = y
 
-        # Calcula largura e altura do retângulo
+        # Calcula coordenadas
         x1 = min(start_x, current_x)
         y1 = min(start_y, current_y)
 
@@ -52,13 +70,14 @@ def mouseClick(event, x, y, flags, params):
         nova_largura = x2 - x1
         nova_altura = y2 - y1
 
-        # Só salva se o retângulo tiver tamanho razoável
+        # Só salva se tiver tamanho razoável
         if nova_largura > 20 and nova_altura > 20:
 
-            posList.append((x1, y1, nova_largura, nova_altura))
+            posList.append(
+                (x1, y1, nova_largura, nova_altura)
+            )
 
-            with open("TESTE2", "wb") as c:
-                pickle.dump(posList, c)
+            salvar_posicoes()
 
             print(
                 f"Vaga criada: "
@@ -74,12 +93,15 @@ def mouseClick(event, x, y, flags, params):
 
             x1, y1, w, h = pos
 
-            if x1 < x < x1 + w and y1 < y < y1 + h:
+            if (
+                x1 < x < x1 + w
+                and
+                y1 < y < y1 + h
+            ):
 
                 posList.pop(i)
 
-                with open("TESTE2", "wb") as c:
-                    pickle.dump(posList, c)
+                salvar_posicoes()
 
                 print("Vaga removida.")
 
@@ -89,6 +111,10 @@ def mouseClick(event, x, y, flags, params):
 while True:
 
     img = cv2.imread("car_park_test.png")
+
+    if img is None:
+        print("Erro: não foi possível carregar car_park_test.png")
+        break
 
     # Desenha vagas já salvas
     for pos in posList:

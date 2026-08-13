@@ -3,11 +3,11 @@ import pickle
 import cvzone
 import numpy as np
 
-cap = cv2.VideoCapture("car_par2.mp4") #comentario para trocar para video mp4
+cap = cv2.VideoCapture("car_park2.mp4") #comentario para trocar para video mp4
 #cap = cv2.VideoCapture(0) #video webcam/camera
 
 
-with open("TESTE2","rb") as c:
+with open("TESTE1","rb") as c:
     posList = pickle.load(c)
 
 largura, altura = 90, 55
