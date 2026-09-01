@@ -37,7 +37,7 @@ As posições das vagas são previamente delimitadas e armazenadas em um arquivo
 Instale as dependências:
 
 ```bash
-pip install opencv-python cvzone numpy
+pip install opencv-python
 ```
 
 Execute o programa:
